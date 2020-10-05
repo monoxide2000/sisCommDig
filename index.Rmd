@@ -1,0 +1,89 @@
+---
+title: "Reporte de reprobación de alumnos"
+subtitle: "Primavera 2020"
+author: "Academia de sistemas de comunicaciones digitales"
+date: "`r Sys.Date()`"
+output:
+  tufte::tufte_html: default
+  tufte::tufte_handout:
+    citation_package: natbib
+    latex_engine: xelatex
+  tufte::tufte_book:
+    citation_package: natbib
+    latex_engine: xelatex
+bibliography: skeleton.bib
+link-citations: yes
+---
+
+```{r setup, include=FALSE}
+library(tufte)
+library(readxl)
+library(dplyr)
+library(highcharter)
+library(kableExtra)
+# invalidate cache when the tufte version changes
+knitr::opts_chunk$set(tidy = FALSE, cache.extra = packageVersion('tufte'))
+options(htmltools.dir.version = FALSE)
+```
+
+
+# Introducción
+
+A continuación se presenta un análisis de las asignaturas de la academia **Sistemas de Comunicaciones Digitales**, en específico, un reporte de las asignaturas con más índice de reprobación durante el período _primavera 2020_. Primeramente se verifica el número de alumnos por profesor. La siguiente tabla muestra el nombre del profesor y el número de estudiantes inscritos en sus asignaturas. Es importante comentar que el objetivo es verificar la dinámica de reprobación por profesor con el propósito de identificar algún patrón.
+
+```{r data, echo=FALSE, message=FALSE, warning=FALSE}
+setwd("/Users/monoxide2000/Downloads")
+data <- read_excel("calif.xlsx", col_names = TRUE, sheet = "BD")
+data$Docente[data$Docente=="Casas De La Cruz / Rosa Guadalup"] <- "Casas De La Cruz / Rosa Guadalupe"
+data %>% group_by(Docente) %>% summarise(Alumnos = n()) %>% kbl(caption = "Docentes y número de estudiantes") %>% kable_paper("hover", full_width = F)
+```
+
+
+# Reprobados por profesor.
+
+Examinamos el número de reprobados por profesor por cada parcial y posteriormente el número de reprobados por asignatura. Se toman en cuenta cada uno de los parciales y se verifica si algún parcial es más determinante que otro. La siguiente figura muestra el número de reprobados por profesor y por parcial ($3$ parciales). Se puede notar que existen profesores que tienen un alto grado de reprobación (es decir el porcentaje con respecto al número de alumnos es alto). De igual forma existen profesores que tienen un alto grado de reprobación al inicio, mientras que otros un alto grado al final. Desafortunadamente no se cuenta con una lista de asistencia o una lista de actividades para corroborar si esta reprobación se debe a alguna actividad en particular (examen, tarea, practica, etc).
+
+```{r echo=FALSE, fig.height=3, fig.width=4, message=FALSE, warning=FALSE}
+dt1 <- data %>% filter(!is.na(Parcial) & Parcial < 7) %>% group_by(Docente) %>% summarise(Reprobados = n()) %>% mutate(Examen = "Parcial1")
+dt2 <- data %>% filter(!is.na(Parcial4) & Parcial4 < 7) %>% group_by(Docente) %>% summarise(Reprobados = n()) %>% mutate(Examen = "Parcial2")
+dt3 <- data %>% filter(!is.na(Ev.) & Ev. < 7) %>% group_by(Docente) %>% summarise(Reprobados = n()) %>% mutate(Examen = "Parcial3")
+dt <- merge(dt1,dt2, all = TRUE)
+dt <- merge(dt, dt3, all = TRUE)
+hchart(dt, "column", hcaes(x = Docente, y = Reprobados, group= Examen)) %>% hc_size(width = 600, height = 350) %>%
+  hc_add_theme(hc_theme_flat()) %>% hc_title(text = "Reprobados por docente") %>%  hc_subtitle(
+    text = "Primavera 2020")
+```
+
+
+# Reprobados por asignatura
+
+A continuación se muestra el número de reprobados por asignatura, lo que permitirá identificar las asignaturas con mayor índice de reprobación y las acciones que se deben de tomar en la academia para poder modificar la dinámica de reprobación. Primeramente mostramos una tabla con el número de estudiantes por asignatura. 
+
+```{r data2, echo=FALSE, message=FALSE, warning=FALSE}
+data %>% group_by(Asignatura) %>% summarise(Alumnos = n()) %>% kbl(caption = "Asignaturas y número de estudiantes") %>% kable_paper("hover", full_width = F)
+```
+
+La siguiente figura muestra el número de reprobados por asignatura y de ésta figura podemos inferir que las asignaturas con mayor índice de reprobación son organización y diseño de computadoras, laboratorio de circuitos eléctricos y electrónica analógica.
+
+
+
+```{r echo=FALSE, fig.height=3, fig.width=4, message=FALSE, warning=FALSE}
+dt1 <- data %>% filter(!is.na(Parcial) & Parcial < 7) %>% group_by(Asignatura) %>% summarise(Reprobados = n()) %>% mutate(Examen = "Parcial1")
+dt2 <- data %>% filter(!is.na(Parcial4) & Parcial4 < 7) %>% group_by(Asignatura) %>% summarise(Reprobados = n()) %>% mutate(Examen = "Parcial2")
+dt3 <- data %>% filter(!is.na(Ev.) & Ev. < 7) %>% group_by(Asignatura) %>% summarise(Reprobados = n()) %>% mutate(Examen = "Parcial3")
+dt <- merge(dt1,dt2, all = TRUE)
+dt <- merge(dt, dt3, all = TRUE)
+hchart(dt, "column", hcaes(x = Asignatura, y = Reprobados, group= Examen)) %>% hc_size(width = 600, height = 350) %>%
+  hc_add_theme(hc_theme_flat()) %>% hc_title(text = "Reprobados por asignatura") %>%  hc_subtitle(
+    text = "Primavera 2020")
+```
+
+Con base en los anteriores resultados, se recomiendan las siguientes acciones para tratar de disminuir el número de reprobados en esas asignaturas.
+
+1. Verificar que todos los estudiantes cumplan con los requisitos previos para cursar una asignatura (este es el caso para las asignaturas de electrónica analógica y laboratorio de circuitos eléctricos).
+
+2. Para el caso de asignaturas de primer ciclo (organización y diseño de computadoras) verificar qué técnicas y estrategias funcionan y cuáles no. Invitar al profesor a utilizar alternativas que permitan a los estudiantes disminuir el riesgo de reprobación.
+
+3. Fomentar la asistencia de los estudiantes a asesorias y estudiar la posibilidad de abrir un club de arquitectura y diseño de computadoras.
+
+4. Para el caso de las asignaturas que tienen un grado de reprobación alto al final (tercer parcial), fomentar la asistencia a las asesorias, especialmente para aquellos alumnos que tienen un promedio menor de $8$ y cuyo resultado en el tercer parcial pueda impactar en su resultado final. 
