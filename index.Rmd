@@ -35,7 +35,7 @@ A continuación se presenta un análisis de las asignaturas de la academia **Sis
 setwd("/Users/monoxide2000/Downloads")
 data <- read_excel("calif.xlsx", col_names = TRUE, sheet = "BD")
 data$Docente[data$Docente=="Casas De La Cruz / Rosa Guadalup"] <- "Casas De La Cruz / Rosa Guadalupe"
-data %>% group_by(Docente) %>% summarise(Alumnos = n()) %>% kbl(caption = "Docentes y número de estudiantes") %>% kable_paper("hover", full_width = F)
+data %>% group_by(Docente) %>% summarise(Alumnos = n()) %>% kbl() %>% kable_paper("hover", full_width = F)
 ```
 
 
@@ -49,7 +49,7 @@ dt2 <- data %>% filter(!is.na(Parcial4) & Parcial4 < 7) %>% group_by(Docente) %>
 dt3 <- data %>% filter(!is.na(Ev.) & Ev. < 7) %>% group_by(Docente) %>% summarise(Reprobados = n()) %>% mutate(Examen = "Parcial3")
 dt <- merge(dt1,dt2, all = TRUE)
 dt <- merge(dt, dt3, all = TRUE)
-hchart(dt, "column", hcaes(x = Docente, y = Reprobados, group= Examen)) %>% hc_size(width = 600, height = 350) %>%
+hchart(dt, "column", hcaes(x = Docente, y = Reprobados, group= Examen)) %>% hc_size(width = 800, height = 500) %>%
   hc_add_theme(hc_theme_flat()) %>% hc_title(text = "Reprobados por docente") %>%  hc_subtitle(
     text = "Primavera 2020")
 ```
@@ -60,7 +60,7 @@ hchart(dt, "column", hcaes(x = Docente, y = Reprobados, group= Examen)) %>% hc_s
 A continuación se muestra el número de reprobados por asignatura, lo que permitirá identificar las asignaturas con mayor índice de reprobación y las acciones que se deben de tomar en la academia para poder modificar la dinámica de reprobación. Primeramente mostramos una tabla con el número de estudiantes por asignatura. 
 
 ```{r data2, echo=FALSE, message=FALSE, warning=FALSE}
-data %>% group_by(Asignatura) %>% summarise(Alumnos = n()) %>% kbl(caption = "Asignaturas y número de estudiantes") %>% kable_paper("hover", full_width = F)
+data %>% group_by(Asignatura) %>% summarise(Alumnos = n()) %>%  kbl() %>% kable_paper("hover", full_width = F)
 ```
 
 La siguiente figura muestra el número de reprobados por asignatura y de ésta figura podemos inferir que las asignaturas con mayor índice de reprobación son organización y diseño de computadoras, laboratorio de circuitos eléctricos y electrónica analógica.
@@ -73,7 +73,7 @@ dt2 <- data %>% filter(!is.na(Parcial4) & Parcial4 < 7) %>% group_by(Asignatura)
 dt3 <- data %>% filter(!is.na(Ev.) & Ev. < 7) %>% group_by(Asignatura) %>% summarise(Reprobados = n()) %>% mutate(Examen = "Parcial3")
 dt <- merge(dt1,dt2, all = TRUE)
 dt <- merge(dt, dt3, all = TRUE)
-hchart(dt, "column", hcaes(x = Asignatura, y = Reprobados, group= Examen)) %>% hc_size(width = 600, height = 350) %>%
+hchart(dt, "column", hcaes(x = Asignatura, y = Reprobados, group= Examen)) %>% hc_size(width = 800, height = 500) %>%
   hc_add_theme(hc_theme_flat()) %>% hc_title(text = "Reprobados por asignatura") %>%  hc_subtitle(
     text = "Primavera 2020")
 ```
